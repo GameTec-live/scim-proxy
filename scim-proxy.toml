@@ -1,0 +1,35 @@
+[upstream]
+url = "https://upstream-scim-server.example.com/scim/v2"
+# bearer_token = "secret-token-here"   # optional: override auth to upstream
+
+[server]
+port = 8080
+# base_path = "/scim/v2"              # optional: strip prefix before forwarding
+
+[transforms]
+# Inject "type" into the first email if missing (Passbolt and some others requires type=work)
+inject_email_type = "work"
+
+# Rules — anything not matched by a rule is forwarded to upstream.
+# Each rule has a resource, methods, and an action:
+#   "reject"  — return 403 SCIM error (default)
+#   "silent"  — accept the request, return success, but don't forward it
+#   "empty"   — return an empty/default SCIM response (empty list, stub object)
+
+# Silently swallow all Group operations — IdP thinks it succeeded
+[[rules]]
+resource = "/Groups"
+methods = ["*"]
+action = "empty"
+
+# Block user deletes with a hard error
+[[rules]]
+resource = "/Users"
+methods = ["DELETE"]
+action = "silent"
+
+# Silently accept bulk operations but don't forward them
+#[[rules]]
+#resource = "/Bulk"
+#methods = ["POST"]
+#action = "silent"

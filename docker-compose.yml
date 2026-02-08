@@ -1,0 +1,8 @@
+services:
+  scim-proxy:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./scim-proxy.toml:/app/scim-proxy.toml:ro
+    restart: unless-stopped
